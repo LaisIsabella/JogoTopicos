@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tópicos de Ciência da Computação</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            min-height: 500px;
+            position: relative;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .rules {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .rules h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .rules ul {
+            padding-left: 20px;
+        }
+
+        .rules li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .topic-card {
+            background: #fff;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .topic-card.pulsing {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                background-color: #fff;
+                border-color: #667eea;
+            }
+            50% {
+                background-color: #f0f7ff;
+                border-color: #4a90e2;
+            }
+            100% {
+                background-color: #fff;
+                border-color: #667eea;
+            }
+        }
+
+        .topic-card.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #4a90e2;
+        }
+
+        .topic-card.correct {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .topic-card.incorrect {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+            border-color: #f44336;
+        }
+
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .timer.warning {
+            background: #ff6b6b;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .progress {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .results {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .results h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .score.excellent {
+            color: #4CAF50;
+        }
+
+        .score.good {
+            color: #ff9800;
+        }
+
+        .score.needs-improvement {
+            color: #f44336;
+        }
+
+        .game-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 1em;
+            }
+
+            .timer {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px 0;
+            }
+
+            .game-info {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin: 10px 0;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+
+    .topic-card.pulsing {
+        animation: pulse 1s infinite, float 2.5s ease-in-out infinite;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Tela Inicial -->
+        <div class="screen active" id="home-screen">
+            <h1>🎯 Tópicos de Ciência da Computação</h1>
+            <p style="font-size: 1.2em; margin-bottom: 30px;">
+                Teste seus conhecimentos sobre os tópicos que interessam diretamente à Ciência da Computação!
+            </p>
+            <button class="btn" onclick="startGame()">🚀 Iniciar Jogo</button>
+        </div>
+
+        <!-- Tela de Regras -->
+        <div class="screen" id="rules-screen">
+            <h1>📋 Regras do Jogo</h1>
+            <div class="rules">
+                <h3>Como Jogar:</h3>
+                <ul>
+                    <li>Clique APENAS nos tópicos pelos quais a Ciência da Computação se interessa diretamente</li>
+                    <li>Cada tópico aparece por 10 segundos - se não clicar, passa para o próximo</li>
+                    <li>Primeiro você terá uma rodada de treino com "Engenharia de Software"</li>
+                    <li>Depois começará o jogo real com vários tópicos misturados</li>
+                    <li>Ao final, verá sua porcentagem de acertos</li>
+                </ul>
+                <h3>Pontuação:</h3>
+                <ul>
+                    <li>✅ Acerto: Selecionar um tópico de interesse da CC</li>
+                    <li>✅ Acerto: NÃO selecionar um tópico que não é de interesse</li>
+                    <li>❌ Erro: Selecionar um tópico que NÃO é de interesse</li>
+                    <li>❌ Erro: NÃO selecionar um tópico que É de interesse</li>
+                </ul>
+            </div>
+            <button class="btn" onclick="showHome()">← Voltar</button>
+            <button class="btn" onclick="startGame()">🚀 Iniciar Jogo</button>
+        </div>
+
+        <!-- Tela de Treino -->
+        <div class="screen" id="training-screen">
+            <h1>🎓 Treino</h1>
+            <div class="game-info">
+                <strong>Modo:</strong> Treino
+            </div>
+            <div class="timer" id="training-timer">10</div>
+            <p style="margin-bottom: 20px;">
+                Esta é uma rodada de treino. Clique no tópico se ele for de interesse direto da Ciência da Computação:
+            </p>
+            <div class="topic-card pulsing" id="training-topic" onclick="selectTrainingTopic()">
+                <h3>Engenharia de software</h3>
+            </div>
+            <p style="margin-top: 20px; color: #666;">
+                Dica: Engenharia de software É um tópico de interesse direto da Ciência da Computação!
+            </p>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div class="screen" id="game-screen">
+            <h1>🎮 Jogo</h1>
+            <div class="game-info">
+                <strong>Tópico:</strong> <span id="current-topic-number">1</span>/<span id="total-topics">0</span>
+            </div>
+            <div class="timer" id="game-timer">10</div>
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="topic-card pulsing" id="game-topic" onclick="selectGameTopic()">
+                <h3 id="current-topic-text"></h3>
+            </div>
+            <p style="margin-top: 20px; color: #666;">
+                Clique no tópico se ele for de interesse direto da Ciência da Computação
+            </p>
+        </div>
+
+        <!-- Tela de Resultados -->
+        <div class="screen" id="results-screen">
+            <h1>📊 Resultados</h1>
+            <div class="results">
+                <div class="score" id="final-score">0%</div>
+                <div id="score-details"></div>
+                <div id="performance-message"></div>
+            </div>
+            <button class="btn" onclick="showHome()">🏠 Início</button>
+            <button class="btn" onclick="startGame()">🔄 Jogar Novamente</button>
+        </div>
+    </div>
+
+    <script>
+        // Tópicos de interesse da Ciência da Computação
+        const csTopics = [
+        "Abordagens curriculares envolvendo etnicidade, gênero, direitos humanos e inclusão",
+        "Analíticas de aprendizagem (learning analytics) em computação",
+        "Aspectos demográficos, sociais e econômicos de cursos de computação",
+        "Aspectos raciais/étnicos na educação em computação",
+        "Aspectos éticos na educação em computação",
+        "Avaliação automatizada de tarefas de programação",
+        "Avaliação da aprendizagem em computação",
+        "Avaliação de pensamento computacional",
+        "Computação desplugada",
+        "Computação na educação infantil",
+        "Computação na educação profissional",
+        "Computação no ensino fundamental",
+        "Computação no ensino médio",
+        "Comunidades discentes em cursos de computação",
+        "Concepções e organizações curriculares em computação",
+        "Curricularização da pesquisa e da extensão em computação",
+        "Didática de computação",
+        "Diversidade em cursos de computação",
+        "Educação continuada em computação",
+        "Educação corporativa em computação",
+        "Educação de jovens e adultos em computação",
+        "Educação em computação aberta e livre (e.g. REA, MOOC)",
+        "Educação em computação através do uso de imagens, áudio e vídeo",
+        "Educação em computação em espaços não-formais",
+        "Ensino e/ou aprendizagem de computação",
+        "Estratégias de ensino e/ou aprendizagem de computação",
+        "Estudos de gênero na educação em computação",
+        "Estudos secundários: revisões sistemáticas e mapeamentos sistemáticos",
+        "Estágio supervisionado na formação de professores de computação",
+        "Evasão e retenção em cursos e disciplinas de computação",
+        "Fatores psicológicos e emocionais em educação em computação",
+        "Feedback de tarefas de programação",
+        "Formação científica em cursos de computação",
+        "Formação continuada de professores em computação",
+        "Formação inicial de professores em computação",
+        "Formação na pós-graduação em computação",
+        "Habilidades técnicas (hard skills) e não-técnicas (soft skills) em computação",
+        "Hardware na educação em computação",
+        "Implantação e avaliação continuada de currículos, programas e cursos de computação",
+        "Inclusão e acessibilidade na educação em computação",
+        "Integração dos conteúdos exigidos por legislação em currículos de computação",
+        "Inteligência artificial e aprendizado de máquina na educação em computação",
+        "Interação entre academia e indústria de TI",
+        "Jogos e gamificação na educação em computação",
+        "Linguagens visuais e textuais para aprendizagem de programação",
+        "Materiais didáticos de computação",
+        "Mentoria na graduação e pós-graduação em computação",
+        "Metacognição na educação em computação",
+        "Metodologias ativas no ensino e/ou aprendizagem de computação",
+        "Mineração de dados educacionais em computação",
+        "Modelos de monitoria e apoio discente em disciplinas de graduação",
+        "Métodos e estratégias para concepção de currículos, programas e cursos de computação",
+        "Pensamento computacional",
+        "Programação na educação superior",
+        "Prática de ensino de computação na formação de professores",
+        "Psicologia da programação",
+        "Realidade virtual e aumentada na educação em computação",
+        "Recursos de apoio à educação em computação",
+        "Redes e mídias sociais em educação em computação",
+        "Robótica na educação em computação",
+        "Saberes docentes na computação",
+        "Teorias educacionais e psicológicas aplicadas à educação em computação"
+        ];
+
+
+        // Tópicos que NÃO são de interesse direto da Ciência da Computação
+        const nonCSTopics = [
+            "Marketing Digital",
+            "Teoria dos jogos",
+            "Sistemas elétricos",
+        ];
+
+        // Variáveis do jogo
+        let currentTopicIndex = 0;
+        let gameTopics = [];
+        let timer = 10;
+        let timerInterval;
+        let gameResponses = [];
+        let startTime;
+        let trainingCompleted = false;
+        let score = 0;
+
+        // Controle de telas
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showHome() {
+            showScreen('home-screen');
+        }
+
+        function showRules() {
+            showScreen('rules-screen');
+        }
+
+        // Função para iniciar o jogo
+        function startGame() {
+        if (!trainingCompleted) {
+            showRulesBeforeTraining();
+        } else {
+            startMainGame();
+            }
+        }
+        function showRulesBeforeTraining() {
+    showScreen('rules-screen');
+
+    // Substitui os botões padrão por um único botão de continuação
+    const rulesScreen = document.getElementById('rules-screen');
+    rulesScreen.querySelectorAll('.btn').forEach(btn => btn.style.display = 'none');
+
+    const continueBtn = document.createElement('button');
+    continueBtn.className = 'btn';
+    continueBtn.textContent = '✅ Entendi, vamos começar!';
+    continueBtn.onclick = () => {
+        rulesScreen.querySelectorAll('.btn').forEach(btn => btn.style.display = '');
+        continueBtn.remove();
+        startTraining();
+    };
+    rulesScreen.appendChild(continueBtn);
+}
+
+
+        // Treino
+        function startTraining() {
+            showScreen('training-screen');
+            startTimer('training-timer', () => {
+                // Se não clicou, considera erro
+                gameResponses.push({
+                    topic: "Engenharia de software",
+                    isCSRelated: true,
+                    selected: false,
+                    correct: false,
+                    timestamp: new Date().toISOString()
+                });
+                alert('Você deveria ter clicado! Engenharia de software É um tópico de interesse da Ciência da Computação. Vamos tentar novamente!');
+                startTraining();
+            });
+        }
+
+        function selectTrainingTopic() {
+            clearInterval(timerInterval);
+            document.getElementById('training-topic').classList.add('correct');
+            
+            gameResponses.push({
+                topic: "Engenharia de software",
+                isCSRelated: true,
+                selected: true,
+                correct: true,
+                timestamp: new Date().toISOString()
+            });
+
+            setTimeout(() => {
+                alert('Muito bem! Engenharia de software É um tópico de interesse direto da Ciência da Computação!');
+                trainingCompleted = true;
+                startMainGame();
+            }, 1000);
+        }
+
+        // Jogo principal
+        function startMainGame() {
+            score = 0;
+            // Mistura todos os tópicos
+            gameTopics = [...csTopics, ...nonCSTopics];
+            shuffleArray(gameTopics);
+            
+            currentTopicIndex = 0;
+            gameResponses = [];
+            startTime = new Date();
+            
+            document.getElementById('total-topics').textContent = gameTopics.length;
+            showScreen('game-screen');
+            showNextTopic();
+        }
+
+        function showNextTopic() {
+    if (currentTopicIndex >= gameTopics.length) {
+        showResults();
+        return;
+    }
+
+    const topic = gameTopics[currentTopicIndex];
+    document.getElementById('current-topic-text').textContent = topic;
+    document.getElementById('current-topic-number').textContent = currentTopicIndex + 1;
+
+    // Atualiza barra de progresso
+    const progress = ((currentTopicIndex + 1) / gameTopics.length) * 100;
+    document.getElementById('progress-bar').style.width = progress + '%';
+
+    // Reset do card
+    const topicCard = document.getElementById('game-topic');
+    topicCard.classList.remove('selected', 'correct', 'incorrect');
+    topicCard.classList.add('pulsing');
+
+    // Aguarda 100ms para garantir que o DOM foi atualizado antes de iniciar o cronômetro
+    setTimeout(() => {
+        startTimer('game-timer', () => {
+            const isCSRelated = csTopics.includes(topic);
+            const correct = !isCSRelated;
+            score += correct ? 1 : -1;
+
+            gameResponses.push({
+                topic: topic,
+                isCSRelated: isCSRelated,
+                selected: false,
+                correct: correct,
+                timestamp: new Date().toISOString(),
+                timeSpent: 10
+            });
+
+            currentTopicIndex++;
+            showNextTopic();
+        });
+    }, 100);
+}
+
+
+        function selectGameTopic() {
+    clearInterval(timerInterval);
+
+    const topic = gameTopics[currentTopicIndex];
+    const isCSRelated = csTopics.includes(topic);
+    const correct = isCSRelated;
+    const timeSpent = 10 - timer;
+
+    // Pontuação: +1 para acerto, -1 para erro
+    score += correct ? 1 : -1;
+
+    gameResponses.push({
+        topic: topic,
+        isCSRelated: isCSRelated,
+        selected: true,
+        correct: correct,
+        timestamp: new Date().toISOString(),
+        timeSpent: timeSpent
+    });
+
+    const topicCard = document.getElementById('game-topic');
+    topicCard.classList.remove('pulsing');
+    topicCard.classList.add('selected');
+
+    // NÃO adicionar classe de correto ou incorreto — mantemos apenas o azul
+    setTimeout(() => {
+        currentTopicIndex++;
+        showNextTopic();
+    }, 1000);
+}
+
+
+        // Timer
+        function startTimer(timerId, onComplete) {
+            timer = 10;
+            const timerElement = document.getElementById(timerId);
+            
+            timerInterval = setInterval(() => {
+                timer--;
+                timerElement.textContent = timer;
+                
+                if (timer <= 3) {
+                    timerElement.classList.add('warning');
+                } else {
+                    timerElement.classList.remove('warning');
+                }
+                
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.classList.remove('warning');
+                    onComplete();
+                }
+            }, 1000);
+        }
+
+        // Resultados
+        function showResults() {
+    const totalQuestions = gameResponses.length;
+    const correctAnswers = gameResponses.filter(r => r.correct).length;
+    const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+    
+    document.getElementById('final-score').textContent = percentage + '%';
+
+    const scoreElement = document.getElementById('final-score');
+    if (percentage >= 80) {
+        scoreElement.classList.add('excellent');
+        document.getElementById('performance-message').innerHTML = 
+            '<h3>🎉 Excelente!</h3><p>Você demonstra um ótimo conhecimento sobre os tópicos da Ciência da Computação!</p>';
+    } else if (percentage >= 60) {
+        scoreElement.classList.add('good');
+        document.getElementById('performance-message').innerHTML = 
+            '<h3>👍 Bom!</h3><p>Você tem um bom conhecimento, mas ainda pode melhorar!</p>';
+    } else {
+        scoreElement.classList.add('needs-improvement');
+        document.getElementById('performance-message').innerHTML = 
+            '<h3>📚 Precisa melhorar</h3><p>Que tal estudar mais sobre os tópicos da Ciência da Computação?</p>';
+    }
+
+    const details = `
+        <p><strong>Acertos:</strong> ${correctAnswers}/${totalQuestions}</p>
+        <p><strong>Tempo total:</strong> ${Math.round((new Date() - startTime) / 1000)}s</p>
+    `;
+    
+    document.getElementById('score-details').innerHTML = details;
+
+    downloadResults();
+
+    // Proteção: adiciona um pequeno atraso antes de mostrar a tela final
+    setTimeout(() => {
+        showScreen('results-screen');
+    }, 100); // ou até 300ms se quiser evitar totalmente duplos cliques
+}
+
+
+        // Download dos resultados
+        function downloadResults() {
+            const payload = {
+                timestamp: new Date().toISOString(),
+                responses: gameResponses
+            };
+
+            fetch('http://localhost:3000/registrar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.text())
+            .then(msg => console.log(msg))
+            .catch(err => console.error('Erro ao registrar:', err));
+}
+
+
+        function convertToCSV(results) {
+            const headers = ['Tópico', 'É de interesse da CC', 'Foi selecionado', 'Resposta correta', 'Tempo gasto (s)', 'Timestamp'];
+            const rows = results.responses.map(r => [
+                `"${r.topic}"`,
+                r.isCSRelated ? 'Sim' : 'Não',
+                r.selected ? 'Sim' : 'Não',
+                r.correct ? 'Sim' : 'Não',
+                r.timeSpent || 10,
+                r.timestamp
+            ]);
+            
+            return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Função auxiliar para embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+    </script>
+</body>
+</html>
