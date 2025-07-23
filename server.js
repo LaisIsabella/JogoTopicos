@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const credentials = require('./credentials.json');
+const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 const spreadsheetId = '18Tn94aT3JenPI2iU4vNcRcCLNTLXySh6BlkOLLjSNQY';
 
 
