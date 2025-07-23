@@ -1,12 +1,24 @@
 const express = require('express');
-const fs = require('fs');
 const cors = require('cors');
+const { google } = require('googleapis');
+const path = require('path');
+const fs = require('fs');
+
 const app = express();
-const PORT = 3000;
-const FILE = './resultados.csv';
+const PORT = process.env.PORT || 3000;
+const credentials = require('./credentials.json');
+const spreadsheetId = '18Tn94aT3JenPI2iU4vNcRcCLNTLXySh6BlkOLLjSNQY';
+
+
+// Autenticação com Google Sheets
+const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 const csTopics = [
         "Abordagens curriculares envolvendo etnicidade, gênero, direitos humanos e inclusão",
@@ -81,29 +93,8 @@ const csTopics = [
             "Sistemas elétricos",
         ];
 
-// cria o cabeçalho se ainda não existir
-if (!fs.existsSync(FILE)) {
-    const header = ['Timestamp', ...getAllTopics().map(t => `"${t}"`)].join(',') + '\n';
-    fs.writeFileSync(FILE, header, 'utf8');
-}
-
-
-app.post('/registrar', (req, res) => {
-    const { timestamp, responses } = req.body;
-    const row = formatRow(timestamp, responses);
-    fs.appendFile(FILE, row + '\n', err => {
-        if (err) return res.status(500).send('Erro ao salvar');
-        res.send('Registrado com sucesso!');
-    });
-});
-
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
-
-// helpers
 function getAllTopics() {
-    return [...csTopics, ...nonCSTopics]; // coloque os arrays completos aqui
+    return [...csTopics, ...nonCSTopics];
 }
 
 function formatRow(timestamp, responses) {
@@ -119,15 +110,39 @@ function formatRow(timestamp, responses) {
             row.push(correct ? '✔️' : '❌');
         }
     });
-    return row.map(c => `"${c}"`).join(','); // ← importante: colocar aspas em tudo
+    return row;
 }
 
-const path = require('path');
+// Rota para salvar os dados
+app.post('/registrar', async (req, res) => {
+    try {
+        const { timestamp, responses } = req.body;
+        const row = formatRow(timestamp, responses);
 
-// Servir arquivos estáticos da pasta 'public'
-app.use(express.static(path.join(__dirname, 'public')));
+        const authClient = await auth.getClient();
+        const sheets = google.sheets({ version: 'v4', auth: authClient });
 
-// Fallback para index.html (SPA)
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'A1',
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [row],
+            },
+        });
+
+        res.send('Registrado com sucesso no Google Sheets!');
+    } catch (err) {
+        console.error('Erro ao registrar no Google Sheets:', err);
+        res.status(500).send('Erro ao registrar');
+    }
+});
+
+// Rota fallback para SPA
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html'));
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
 });

@@ -350,6 +350,7 @@
     </div>
 
     <script>
+        let alreadySaved = false;
         // Tópicos de interesse da Ciência da Computação
         const csTopics = [
         "Abordagens curriculares envolvendo etnicidade, gênero, direitos humanos e inclusão",
@@ -627,11 +628,11 @@
         }
 
         // Resultados
-        function showResults() {
+function showResults() {
     const totalQuestions = gameResponses.length;
     const correctAnswers = gameResponses.filter(r => r.correct).length;
     const percentage = Math.round((correctAnswers / totalQuestions) * 100);
-    
+
     document.getElementById('final-score').textContent = percentage + '%';
 
     const scoreElement = document.getElementById('final-score');
@@ -653,16 +654,19 @@
         <p><strong>Acertos:</strong> ${correctAnswers}/${totalQuestions}</p>
         <p><strong>Tempo total:</strong> ${Math.round((new Date() - startTime) / 1000)}s</p>
     `;
-    
     document.getElementById('score-details').innerHTML = details;
 
-    downloadResults();
+    // ✅ Executa apenas se ainda não foi salvo
+    if (!alreadySaved) {
+        downloadResults();
+        alreadySaved = true;
+    }
 
-    // Proteção: adiciona um pequeno atraso antes de mostrar a tela final
     setTimeout(() => {
         showScreen('results-screen');
-    }, 100); // ou até 300ms se quiser evitar totalmente duplos cliques
+    }, 100);
 }
+
 
 
         // Download dos resultados
