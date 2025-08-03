@@ -281,7 +281,7 @@
         <div class="screen active" id="home-screen">
             <h1>🎯 Tópicos de Ciência da Computação</h1>
             <p style="font-size: 1.2em; margin-bottom: 30px;">
-                Teste seus conhecimentos sobre os tópicos que interessam diretamente à Ciência da Computação!
+                Teste seus conhecimentos sobre alguns tópicos que interessam diretamente à Ciência da Computação!
             </p>
             <button class="btn" onclick="startGame()">🚀 Iniciar Jogo</button>
             <div class="debug-info" id="debug-info" style="display: none;">
@@ -296,7 +296,7 @@
             <div class="rules">
                 <h3>Como Jogar:</h3>
                 <ul>
-                    <li>Clique APENAS nos tópicos pelos quais a Ciência da Computação se interessa diretamente</li>
+                    <li>Clique APENAS nos tópicos pelos quais a Ciência da Computação (CC) se interessa diretamente</li>
                     <li>Cada tópico aparece por 10 segundos - se não clicar, passa para o próximo</li>
                     <li>Primeiro você terá uma rodada de treino com "Engenharia de Software"</li>
                     <li>Depois começará o jogo real com vários tópicos misturados</li>
@@ -357,10 +357,10 @@
                 <div class="score" id="final-score">0%</div>
                 <div id="score-details"></div>
                 <div id="performance-message"></div>
-                <div class="debug-info" id="save-status">
+                <!-- <div class="debug-info" id="save-status">
                     <strong>Status do Salvamento:</strong><br>
                     <span id="save-message">Salvando dados...</span>
-                </div>
+                </div> -->
             </div>
             <button class="btn" onclick="showHome()">🏠 Início</button>
             <button class="btn" onclick="startGame()">🔄 Jogar Novamente</button>
@@ -700,7 +700,7 @@
             } else {
                 scoreElement.classList.add('needs-improvement');
                 document.getElementById('performance-message').innerHTML = 
-                    '<h3>📚 Precisa melhorar</h3><p>Que tal estudar mais sobre os tópicos da Ciência da Computação?</p>';
+                    '<h3>📚 Precisa melhorar</h3><p>Que tal estudar mais sobre tópicos que interessam diretamente à Ciência da Computação?</br>https://www.educompbrasil.org/simposio/2025/educomp/chamadas/topicos-de-interesse</p>';
             }
 
             const details = `
