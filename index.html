@@ -234,6 +234,11 @@
             color: #666;
         }
 
+        /* Ocultar o status de salvamento */
+        #save-status {
+            display: none !important;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -273,6 +278,10 @@
         .topic-card.pulsing {
             animation: pulse 1s infinite, float 2.5s ease-in-out infinite;
         }
+
+    #save-status {
+    display: none !important;
+}
     </style>
 </head>
 <body>
@@ -357,7 +366,8 @@
                 <div class="score" id="final-score">0%</div>
                 <div id="score-details"></div>
                 <div id="performance-message"></div>
-                <div class="debug-info" id="save-status">
+                <!-- Status de salvamento ocultado via CSS -->
+                <div class="debug-info" id="save-status" style="display: none;">
                     <strong>Status do Salvamento:</strong><br>
                     <span id="save-message">Salvando dados...</span>
                 </div>
@@ -709,7 +719,7 @@
             `;
             document.getElementById('score-details').innerHTML = details;
 
-            // Salvar resultados apenas uma vez
+            // Salvar resultados apenas uma vez (ainda funciona, mas oculto)
             if (!alreadySaved) {
                 downloadResults();
                 alreadySaved = true;
@@ -722,6 +732,7 @@
 
         // Download dos resultados
         function downloadResults() {
+            // Status de salvamento atualizado, mas invisível
             document.getElementById('save-message').textContent = 'Salvando dados...';
             
             const payload = {
